@@ -5,7 +5,9 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.JComboBox;
 import java.awt.Color;
 import javax.swing.JTabbedPane;
 import javax.swing.table.DefaultTableModel;
@@ -13,6 +15,7 @@ import javax.swing.JTable;
 import java.awt.GridLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JScrollPane;
 import javax.swing.JOptionPane;
 
@@ -23,13 +26,16 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
 
     private JButton btnResolver; //Boton que indicara al programa que comienze el metodo
 
-    private JLabel lblNumVar; private JTextField txtNumVar;
-    private JLabel lblNumRes; private JTextField txtNumRes;
+    private JLabel lblNumVar; private JComboBox jcbMAXVAR;
+    private JLabel lblNumRes; private JComboBox jcbMAXRES;
     private JLabel lblFuncionObj; private JScrollPane jpFuncionObj;
-    private JLabel lblMaxOMin; 
+    private JLabel lblMaxOMin; private JRadioButton jrMax; private JRadioButton jrMin;  
     private JLabel lblIngresaRes;
 
+    static final int MAXVAR = 5; //Maximo numero de variables 
+    static final int MAXRES = 5; //Maximo numero de restricciones
 
+    private ButtonGroup bg; //Grupo de radiobutton
 
     private GridBagConstraints constraints; //Para el GridBagLayout
 
@@ -64,25 +70,28 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
         
         //Ubicamos la etiqueta "Numero de variables:" en el layout
         constraints.weighty = 1.0;
+        constraints.weightx = 1.0;
         constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.gridwidth = 10;
-        constraints.weightx = 4.0;
+        constraints.gridy = 0;  
+        //constraints.gridwidth = 3;
         constraints.fill = GridBagConstraints.BOTH;
         lblNumVar = new JLabel("Numero de variables:");
         jpNorth.add(lblNumVar, constraints);
 
         //Ubicamos el campo de texto para ingresa el numero de variables en el layout
-        constraints.weightx = 1.0;
-        constraints.gridx = 4;
+        constraints.weightx = 2.0;
+        constraints.gridx = 1;
         constraints.gridy = 0;
         constraints.fill = GridBagConstraints.BOTH;
-        txtNumVar = new JTextField();
-        jpNorth.add(txtNumVar, constraints);
+        jcbMAXVAR = new JComboBox();
+        for (int i = 2; i <= MAXVAR;  i++) {
+            jcbMAXVAR.addItem(i);            
+        }
+        jpNorth.add(jcbMAXVAR, constraints);
 
         //Ubicamos la etiqueta "Selecciona una opcion" en el layout
-        constraints.weightx = 5.0;
-        constraints.gridx = 5;
+        constraints.weightx = 4.0;
+        constraints.gridx = 3;
         constraints.gridy = 0;
         constraints.fill = GridBagConstraints.BOTH;
         lblMaxOMin = new JLabel("Selecciona una opcion");
@@ -97,27 +106,63 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
         jpNorth.add(lblNumRes, constraints);
 
         //Ubicamos el campo de texto para ingresa el numero de restricciones en el layout
-        constraints.weightx = 1.0;
-        constraints.gridx = 3;
+        constraints.weightx = 2.0;
+        constraints.gridx = 1;
         constraints.gridy = 1;
         constraints.fill = GridBagConstraints.BOTH;
-        txtNumRes = new JTextField();
-        jpNorth.add(txtNumRes, constraints);
-        
-        
+        jcbMAXRES = new JComboBox();
+        for (int i = 2; i <= MAXRES;  i++) {
+            jcbMAXRES.addItem(i);            
+        }
+        jpNorth.add(jcbMAXRES, constraints);
 
+        //Ubicamos el radiobutton de minimizar en el layout
+        constraints.weightx = 2.0;
+        constraints.gridx = 3;  
+        constraints.gridy = 1;
+        constraints.fill = GridBagConstraints.BOTH;
+        jrMin = new JRadioButton("Minimizar");
+        jpNorth.add(jrMin, constraints);
+
+        //Ubicamos el radiobutton de maximizar en el layout
+        constraints.weightx = 2.0;
+        constraints.gridx = 5;
+        constraints.gridy = 1;
+        constraints.fill = GridBagConstraints.BOTH;
+        jrMax = new JRadioButton("Maximizar");
+        jpNorth.add(jrMax, constraints);
+
+        bg = new ButtonGroup();
+        bg.add(jrMax); bg.add(jrMin); // Añadimos los 2 radio button al grupo
+
+        //Ubicamos la etiqueta "Ingresa las restricciones:" en el layout
+        constraints.weightx = 1.0;
+        constraints.gridx = 0;
+        constraints.gridy = 3;
+        constraints.fill = GridBagConstraints.BOTH;
         lblIngresaRes = new JLabel("Ingresa las restricciones:");
-
-
-
+        jpNorth.add(lblIngresaRes, constraints);
+        
+        jpSouth.setLayout(new BorderLayout());
+        lblFuncionObj = new JLabel("Ingresa la F.O Z =");
+        jpFuncionObj = new JScrollPane();
         btnResolver = new JButton("Resolver");
-        jpSouth.add(btnResolver);
+        jpSouth.add(lblFuncionObj, BorderLayout.WEST);
+        jpSouth.add(jpFuncionObj, BorderLayout.CENTER);
+        jpSouth.add(btnResolver, BorderLayout.EAST);
+
+        btnResolver.addActionListener(this);
+
+        JLabel aux = new JLabel("prueba"/*((Integer)jcbMAXRES.getSelectedItem()).toString()*/);
+
+        jpCenter.add(aux);
 
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
+        VentanaResultados res = new VentanaResultados();
+        res.setVisible(true);
     }
 
     //Funcion principal
