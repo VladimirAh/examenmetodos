@@ -19,6 +19,9 @@ import javax.swing.ButtonGroup;
 import javax.swing.JScrollPane;
 import javax.swing.JOptionPane;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.List;
+import java.util.HashMap;
 
 public class VentanaPrincipal extends JFrame implements ActionListener {
 	private JPanel jpNorth; //Panel superior donde estaran los parametros del metodo
@@ -36,17 +39,15 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
     static final int MAXVAR = 5; //Maximo numero de variables 
     static final int MAXRES = 5; //Maximo numero de restricciones
 
-    //private int valOfVar[MAXVAR]; //Valores de las variables en la función objetivo 
-    //private ArrayList<int> funObj;
-    //private ArrayList<> res;
-
-   // private int valOfRes[MAXRES][MAXVAR+1]; //Tabla con los valores de las restricciones
+    //Cajas de texto para que el usuario escriba el valor de las variables de la FO
+    private ArrayList<JTextField> txtVectorFO; 
+    //Cajas de texto para que el usuario escriba el valor de las variables en cada una de las restricciones
+    private List<List<JTextField>> txtListRes = new ArrayList<List<JTextField>>(); 
+    private ArrayList<JComboBox> jcbdesigualdad; private HashMap<String, Integer> des; 
 
     private ButtonGroup bg; //Grupo de radiobutton
 
     private GridBagConstraints constraints; //Para el GridBagLayout
-
-/*    private GridLayout glRes; //Layout para acomodar las restricciones*/
 
     public VentanaPrincipal() {
         super();
@@ -152,45 +153,97 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
         lblIngresaRes = new JLabel("Ingresa las restricciones:");
         jpNorth.add(lblIngresaRes, constraints);
         
+        //Parte inferior de la ventana
         jpSouth.setLayout(new BorderLayout());
-        lblFuncionObj = new JLabel("Ingresa la F.O Z =");
+        lblFuncionObj = new JLabel("Ingresa la F.O         Z =");
         jpFuncionObj = new JPanel();
-
         btnResolver = new JButton("Resolver");
         jpSouth.add(lblFuncionObj, BorderLayout.WEST);
         jpSouth.add(jpFuncionObj, BorderLayout.CENTER);
         jpSouth.add(btnResolver, BorderLayout.EAST);
 
         btnResolver.addActionListener(this); //Añadimos el boton de Resolver a la escucha
-        jcbMAXVAR.addActionListener(this);
+        jcbMAXVAR.addActionListener(this); 
         jcbMAXRES.addActionListener(this); 
 
+        //Valor seleccionado actual del numero de variables
         int numActualVar = (Integer)jcbMAXVAR.getSelectedItem();
+        //Valor seleccionado actual del numero de restricciones
         int numActualRes = (Integer)jcbMAXRES.getSelectedItem();
 
+        txtVectorFO = new ArrayList<JTextField>();
+
+        jcbdesigualdad = new ArrayList<JComboBox>();
+/*
+        des.put("<=", 0);
+        des.put(">=", 1);
+        des.put("=", 2);*/
+
+
+
+        //Funciones para crear las restriciones y la funcion objetivo
         crearFuncionObjetivo(numActualVar);
-
         crearRestricciones(numActualRes, numActualVar);
-
     }
 
     public void crearRestricciones(int numRes, int numVar){
+        txtListRes.clear();
+        for(int i = 0; i < numRes; i++)
+            txtListRes.add(new ArrayList<JTextField>());
+
         jpCenter.removeAll();
-        //jpCenter.repaint();
-        jpCenter.setLayout(new GridLayout(numRes, numVar+2));
+        jpCenter.setLayout(new GridLayout(numRes, (numVar*2) + 2));
+
         for (int i = 1; i <= numRes; i++) {
-            for (int j = 1; j <= numVar + 2; j++) {
-                jpCenter.add(new JLabel("r:"+i+",x:"+j));
+            jpCenter.add(new JLabel("r:"+i));
+            for (int j = 1, x=0; j <= (numVar * 2) + 2; j++) {
+                if(j <= (numVar * 2)){
+                    if(j%2 == 0){
+                        if(j == numVar*2)
+                            jpCenter.add(new JLabel("X"+(j/2)));
+                        else
+                            jpCenter.add(new JLabel("X"+(j/2)+"+"));
+                    }else{
+                        JTextField aux = new JTextField();
+                        txtListRes.get(i-1).add(aux);
+                        jpCenter.add(txtListRes.get(i-1).get(x));
+                        x++;
+                    }
+                }else{
+                    if(j == (numVar*2)+1){
+                        JComboBox aux = new JComboBox();
+                        aux.addItem("<=");
+                        aux.addItem(">=");
+                        aux.addItem("=");
+                        jpCenter.add(aux);
+                    }else{
+                        JTextField aux = new JTextField();
+                        txtListRes.get(i-1).add(aux);
+                        jpCenter.add(txtListRes.get(i-1).get(x));
+                    }
+                }
+                
             }
         }
-        jpCenter.repaint(0);
+        jpCenter.repaint();
     }
 
     public void crearFuncionObjetivo(int numVar){
+        txtVectorFO.clear();
         jpFuncionObj.removeAll();
         jpFuncionObj.setLayout(new GridLayout(1, numVar));
-        for (int i = 1; i <= numVar + 2; i++) {
-            jpFuncionObj.add(new JLabel("X"+i));
+        for (int i = 1, j = 0; i <= numVar * 2; i++) {
+            if(i%2 == 0){
+                if(i == numVar*2)
+                    jpFuncionObj.add(new JLabel("X"+(i/2)));
+                else
+                    jpFuncionObj.add(new JLabel("X"+(i/2)+"+"));
+            }else{
+                JTextField aux = new JTextField();
+                txtVectorFO.add(aux);
+                jpFuncionObj.add(txtVectorFO.get(j));
+                j++;
+            }
         }   
         jpFuncionObj.repaint();
     }
