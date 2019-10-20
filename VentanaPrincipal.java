@@ -36,14 +36,17 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
     private JLabel lblMaxOMin; private JRadioButton jrMax; private JRadioButton jrMin;  
     private JLabel lblIngresaRes;
 
-    static final int MAXVAR = 5; //Maximo numero de variables 
-    static final int MAXRES = 5; //Maximo numero de restricciones
+    static final int MAXVAR = 15; //Maximo numero de variables 
+    static final int MAXRES = 15; //Maximo numero de restricciones
 
     //Cajas de texto para que el usuario escriba el valor de las variables de la FO
     private ArrayList<JTextField> txtVectorFO; 
     //Cajas de texto para que el usuario escriba el valor de las variables en cada una de las restricciones
     private List<List<JTextField>> txtListRes = new ArrayList<List<JTextField>>(); 
-    private ArrayList<JComboBox> jcbdesigualdad; private HashMap<String, Integer> des; 
+    private ArrayList<JComboBox> jcbdesigualdad; public static HashMap<String, Integer> des; 
+
+    private ArrayList<Integer> valoresFO; //Vector con los valores de las variables de la funcion objetivo
+    private List<List<Integer>> valoresRES = new ArrayList<List<Integer>>();   
 
     private ButtonGroup bg; //Grupo de radiobutton
 
@@ -174,12 +177,12 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
         txtVectorFO = new ArrayList<JTextField>();
 
         jcbdesigualdad = new ArrayList<JComboBox>();
-/*
-        des.put("<=", 0);
-        des.put(">=", 1);
-        des.put("=", 2);*/
 
+        des = new HashMap<String, Integer>();
 
+        des.put("<=", new Integer(0));
+        des.put(">=", new Integer(1));
+        des.put("=",  new Integer(2));
 
         //Funciones para crear las restriciones y la funcion objetivo
         crearFuncionObjetivo(numActualVar);
@@ -192,11 +195,11 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
             txtListRes.add(new ArrayList<JTextField>());
 
         jpCenter.removeAll();
-        jpCenter.setLayout(new GridLayout(numRes, (numVar*2) + 2));
+        jpCenter.setLayout(new GridLayout(numRes, (numVar*2) + 3));
 
         for (int i = 1; i <= numRes; i++) {
             jpCenter.add(new JLabel("r:"+i));
-            for (int j = 1, x=0; j <= (numVar * 2) + 2; j++) {
+            for (int j = 1, x=0; j <= (numVar * 2) + 3; j++) {
                 if(j <= (numVar * 2)){
                     if(j%2 == 0){
                         if(j == numVar*2)
@@ -210,13 +213,13 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
                         x++;
                     }
                 }else{
-                    if(j == (numVar*2)+1){
+                    if(j == (numVar*2)+2){
                         JComboBox aux = new JComboBox();
                         aux.addItem("<=");
                         aux.addItem(">=");
                         aux.addItem("=");
                         jpCenter.add(aux);
-                    }else{
+                    }else if(j == (numVar*2)+3){
                         JTextField aux = new JTextField();
                         txtListRes.get(i-1).add(aux);
                         jpCenter.add(txtListRes.get(i-1).get(x));
@@ -225,7 +228,7 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
                 
             }
         }
-        jpCenter.repaint();
+        jpCenter.updateUI();
     }
 
     public void crearFuncionObjetivo(int numVar){
@@ -245,7 +248,7 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
                 j++;
             }
         }   
-        jpFuncionObj.repaint();
+        jpFuncionObj.updateUI();
     }
 
     @Override
