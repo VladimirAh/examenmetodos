@@ -29,7 +29,7 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
 
     private JLabel lblNumVar; private JComboBox jcbMAXVAR; //ComboBox para seleccionar el numero de variables
     private JLabel lblNumRes; private JComboBox jcbMAXRES; //ComboBox para seleccionar el numero de restricciones
-    private JLabel lblFuncionObj; private JScrollPane jpFuncionObj; 
+    private JLabel lblFuncionObj; private JPanel jpFuncionObj; 
     private JLabel lblMaxOMin; private JRadioButton jrMax; private JRadioButton jrMin;  
     private JLabel lblIngresaRes;
 
@@ -37,8 +37,8 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
     static final int MAXRES = 5; //Maximo numero de restricciones
 
     //private int valOfVar[MAXVAR]; //Valores de las variables en la función objetivo 
-    private ArrayList<int> funObj;
-    private ArrayList<> res;
+    //private ArrayList<int> funObj;
+    //private ArrayList<> res;
 
    // private int valOfRes[MAXRES][MAXVAR+1]; //Tabla con los valores de las restricciones
 
@@ -154,7 +154,8 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
         
         jpSouth.setLayout(new BorderLayout());
         lblFuncionObj = new JLabel("Ingresa la F.O Z =");
-        jpFuncionObj = new JScrollPane();
+        jpFuncionObj = new JPanel();
+
         btnResolver = new JButton("Resolver");
         jpSouth.add(lblFuncionObj, BorderLayout.WEST);
         jpSouth.add(jpFuncionObj, BorderLayout.CENTER);
@@ -164,8 +165,13 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
         jcbMAXVAR.addActionListener(this);
         jcbMAXRES.addActionListener(this); 
 
+        int numActualVar = (Integer)jcbMAXVAR.getSelectedItem();
+        int numActualRes = (Integer)jcbMAXRES.getSelectedItem();
 
-        crearRestricciones((Integer)jcbMAXRES.getSelectedItem(), (Integer)jcbMAXVAR.getSelectedItem());
+        crearFuncionObjetivo(numActualVar);
+
+        crearRestricciones(numActualRes, numActualVar);
+
     }
 
     public void crearRestricciones(int numRes, int numVar){
@@ -180,6 +186,15 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
         jpCenter.repaint(0);
     }
 
+    public void crearFuncionObjetivo(int numVar){
+        jpFuncionObj.removeAll();
+        jpFuncionObj.setLayout(new GridLayout(1, numVar));
+        for (int i = 1; i <= numVar + 2; i++) {
+            jpFuncionObj.add(new JLabel("X"+i));
+        }   
+        jpFuncionObj.repaint();
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         try{
@@ -190,10 +205,9 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
             JComboBox aux = (JComboBox)e.getSource();
             if (aux == jcbMAXRES) {
                  crearRestricciones((Integer)jcbMAXRES.getSelectedItem(), (Integer)jcbMAXVAR.getSelectedItem());
-                 System.out.println("MAXRES: "+(Integer)jcbMAXRES.getSelectedItem()+",MAXVAR: "+(Integer)jcbMAXVAR.getSelectedItem());
             }else if (aux == jcbMAXVAR) {
                  crearRestricciones((Integer)jcbMAXRES.getSelectedItem(), (Integer)jcbMAXVAR.getSelectedItem());
-                 System.out.println("MAXRES: "+(Integer)jcbMAXRES.getSelectedItem()+",MAXVAR: "+(Integer)jcbMAXVAR.getSelectedItem());                
+                 crearFuncionObjetivo((Integer)jcbMAXVAR.getSelectedItem());crearFuncionObjetivo((Integer)jcbMAXVAR.getSelectedItem());
             }
         }   
     }
