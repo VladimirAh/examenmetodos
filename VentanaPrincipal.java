@@ -18,26 +18,35 @@ import java.awt.GridBagLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JScrollPane;
 import javax.swing.JOptionPane;
+import java.util.ArrayList;
 
 public class VentanaPrincipal extends JFrame implements ActionListener {
 	private JPanel jpNorth; //Panel superior donde estaran los parametros del metodo
-    private JScrollPane jpCenter; //Panel central donde el usuario colocara las restricciones
+    private JPanel jpCenter; //Panel central donde el usuario colocara las restricciones
     private JPanel jpSouth; // Panel inferior que contendra el boton de Resolver
 
     private JButton btnResolver; //Boton que indicara al programa que comienze el metodo
 
-    private JLabel lblNumVar; private JComboBox jcbMAXVAR;
-    private JLabel lblNumRes; private JComboBox jcbMAXRES;
-    private JLabel lblFuncionObj; private JScrollPane jpFuncionObj;
+    private JLabel lblNumVar; private JComboBox jcbMAXVAR; //ComboBox para seleccionar el numero de variables
+    private JLabel lblNumRes; private JComboBox jcbMAXRES; //ComboBox para seleccionar el numero de restricciones
+    private JLabel lblFuncionObj; private JScrollPane jpFuncionObj; 
     private JLabel lblMaxOMin; private JRadioButton jrMax; private JRadioButton jrMin;  
     private JLabel lblIngresaRes;
 
     static final int MAXVAR = 5; //Maximo numero de variables 
     static final int MAXRES = 5; //Maximo numero de restricciones
 
+    //private int valOfVar[MAXVAR]; //Valores de las variables en la función objetivo 
+    private ArrayList<int> funObj;
+    private ArrayList<> res;
+
+   // private int valOfRes[MAXRES][MAXVAR+1]; //Tabla con los valores de las restricciones
+
     private ButtonGroup bg; //Grupo de radiobutton
 
     private GridBagConstraints constraints; //Para el GridBagLayout
+
+/*    private GridLayout glRes; //Layout para acomodar las restricciones*/
 
     public VentanaPrincipal() {
         super();
@@ -58,7 +67,7 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
     //Inicializar los componentes que estaran dentro de VentanaPrincipal
     private void inicializarComponentes() {
     	jpNorth = new JPanel(); 
-    	jpCenter = new JScrollPane();
+    	jpCenter = new JPanel();
     	jpSouth = new JPanel();
 
     	add(jpNorth, BorderLayout.NORTH); //Colocamos jpNorth en la parte superior
@@ -151,18 +160,42 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
         jpSouth.add(jpFuncionObj, BorderLayout.CENTER);
         jpSouth.add(btnResolver, BorderLayout.EAST);
 
-        btnResolver.addActionListener(this);
+        btnResolver.addActionListener(this); //Añadimos el boton de Resolver a la escucha
+        jcbMAXVAR.addActionListener(this);
+        jcbMAXRES.addActionListener(this); 
 
-        JLabel aux = new JLabel("prueba"/*((Integer)jcbMAXRES.getSelectedItem()).toString()*/);
 
-        jpCenter.add(aux);
+        crearRestricciones((Integer)jcbMAXRES.getSelectedItem(), (Integer)jcbMAXVAR.getSelectedItem());
+    }
 
+    public void crearRestricciones(int numRes, int numVar){
+        jpCenter.removeAll();
+        //jpCenter.repaint();
+        jpCenter.setLayout(new GridLayout(numRes, numVar+2));
+        for (int i = 1; i <= numRes; i++) {
+            for (int j = 1; j <= numVar + 2; j++) {
+                jpCenter.add(new JLabel("r:"+i+",x:"+j));
+            }
+        }
+        jpCenter.repaint(0);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        VentanaResultados res = new VentanaResultados();
-        res.setVisible(true);
+        try{
+            JButton aux = (JButton)e.getSource();
+            VentanaResultados res = new VentanaResultados();
+            res.setVisible(true);
+        }catch(Exception excep){
+            JComboBox aux = (JComboBox)e.getSource();
+            if (aux == jcbMAXRES) {
+                 crearRestricciones((Integer)jcbMAXRES.getSelectedItem(), (Integer)jcbMAXVAR.getSelectedItem());
+                 System.out.println("MAXRES: "+(Integer)jcbMAXRES.getSelectedItem()+",MAXVAR: "+(Integer)jcbMAXVAR.getSelectedItem());
+            }else if (aux == jcbMAXVAR) {
+                 crearRestricciones((Integer)jcbMAXRES.getSelectedItem(), (Integer)jcbMAXVAR.getSelectedItem());
+                 System.out.println("MAXRES: "+(Integer)jcbMAXRES.getSelectedItem()+",MAXVAR: "+(Integer)jcbMAXVAR.getSelectedItem());                
+            }
+        }   
     }
 
     //Funcion principal
