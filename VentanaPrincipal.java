@@ -31,8 +31,8 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
     private JLabel lblMaxOMin; private JRadioButton jrMax; private JRadioButton jrMin;  
     private JLabel lblIngresaRes;
 
-    static final int MAXVAR = 15; //Maximo numero de variables 
-    static final int MAXRES = 15; //Maximo numero de restricciones
+    static final int MAXVAR = 5; //Maximo numero de variables 
+    static final int MAXRES = 5; //Maximo numero de restricciones
 
     //Cajas de texto para que el usuario escriba el valor de las variables de la FO
     private ArrayList<JTextField> txtVectorFO; 
@@ -254,7 +254,9 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-       
+       valFO.clear();
+       valRES.clear();
+       desigualdades.clear();
         try{
             JButton aux = (JButton)e.getSource();
              boolean camposLlenos = true;
@@ -299,6 +301,7 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
 
             if(camposLlenos){ //Si todos los campos estan llenos podemos empezar con el metodo
                 Simplex metodoSimplex = new Simplex(valFO, valRES, desigualdades, maxi);
+                metodoSimplex.resolverSimplex();
                 VentanaResultados res = new VentanaResultados(metodoSimplex.obeterVectorSol(), metodoSimplex.obeterTablasIter());
                 res.setVisible(true);
             }
