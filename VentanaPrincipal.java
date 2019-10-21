@@ -8,18 +8,13 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
-import java.awt.Color;
-import javax.swing.JTabbedPane;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.JTable;
 import java.awt.GridLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.JScrollPane;
 import javax.swing.JOptionPane;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.List;
 import java.util.HashMap;
 
@@ -43,10 +38,11 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
     private ArrayList<JTextField> txtVectorFO; 
     //Cajas de texto para que el usuario escriba el valor de las variables en cada una de las restricciones
     private List<List<JTextField>> txtListRes = new ArrayList<List<JTextField>>(); 
-    private ArrayList<JComboBox> jcbdesigualdad; public static HashMap<String, Integer> des; 
+    private ArrayList<JComboBox> jcbdesigualdad; private HashMap<String, Integer> des; 
 
-    private ArrayList<Integer> valoresFO; //Vector con los valores de las variables de la funcion objetivo
-    private List<List<Integer>> valoresRES = new ArrayList<List<Integer>>();   
+    private ArrayList<Integer> valFO; //Vector con los valores de las variables de la funcion objetivo
+    private List<List<Integer>> valRES = new ArrayList<List<Integer>>(); 
+    private ArrayList<Integer> desigualdades;
 
     private ButtonGroup bg; //Grupo de radiobutton
 
@@ -134,7 +130,7 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
         constraints.gridx = 3;  
         constraints.gridy = 1;
         constraints.fill = GridBagConstraints.BOTH;
-        jrMin = new JRadioButton("Minimizar");
+        jrMin = new JRadioButton("Minimizar", true);
         jpNorth.add(jrMin, constraints);
 
         //Ubicamos el radiobutton de maximizar en el layout
@@ -185,21 +181,25 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
         des.put("=",  new Integer(2));
 
         //Funciones para crear las restriciones y la funcion objetivo
-        crearFuncionObjetivo(numActualVar);
-        crearRestricciones(numActualRes, numActualVar);
+        creaUIfuncionObjetivo(numActualVar);
+        crearUIresticciones(numActualRes, numActualVar);
+
+        valFO = new ArrayList<Integer>();
+        desigualdades = new ArrayList<Integer>();
     }
 
-    public void crearRestricciones(int numRes, int numVar){
+    public void crearUIresticciones(int numRes, int numVar){
         txtListRes.clear();
+        jcbdesigualdad.clear();
         for(int i = 0; i < numRes; i++)
             txtListRes.add(new ArrayList<JTextField>());
 
         jpCenter.removeAll();
-        jpCenter.setLayout(new GridLayout(numRes, (numVar*2) + 3));
+        jpCenter.setLayout(new GridLayout(numRes, (numVar*2) + 2));
 
         for (int i = 1; i <= numRes; i++) {
-            jpCenter.add(new JLabel("r:"+i));
-            for (int j = 1, x=0; j <= (numVar * 2) + 3; j++) {
+            jpCenter.add(new JLabel("r"+i+":"));
+            for (int j = 1, x=0; j <= (numVar * 2) + 2; j++) {
                 if(j <= (numVar * 2)){
                     if(j%2 == 0){
                         if(j == numVar*2)
@@ -213,13 +213,14 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
                         x++;
                     }
                 }else{
-                    if(j == (numVar*2)+2){
+                    if(j == (numVar*2)+1){
                         JComboBox aux = new JComboBox();
                         aux.addItem("<=");
                         aux.addItem(">=");
-                        aux.addItem("=");
+                        aux.addItem("=");                        
+                        jcbdesigualdad.add(aux);
                         jpCenter.add(aux);
-                    }else if(j == (numVar*2)+3){
+                    }else if(j == (numVar*2)+2){
                         JTextField aux = new JTextField();
                         txtListRes.get(i-1).add(aux);
                         jpCenter.add(txtListRes.get(i-1).get(x));
@@ -231,7 +232,7 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
         jpCenter.updateUI();
     }
 
-    public void crearFuncionObjetivo(int numVar){
+    public void creaUIfuncionObjetivo(int numVar){
         txtVectorFO.clear();
         jpFuncionObj.removeAll();
         jpFuncionObj.setLayout(new GridLayout(1, numVar));
@@ -253,17 +254,61 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+       
         try{
             JButton aux = (JButton)e.getSource();
-            VentanaResultados res = new VentanaResultados();
-            res.setVisible(true);
+             boolean camposLlenos = true;
+            //Guardar los valores de la variables de la FO en una lista
+            for (int i = 0; i < txtVectorFO.size(); i++)  {
+                if(txtVectorFO.get(i).getText().equals("")){ //Validar que los campos esten llenos
+                    JOptionPane.showMessageDialog(this, "Llena todos los campos de la F.O", "Error!", JOptionPane.ERROR_MESSAGE);
+                    camposLlenos = false;
+                    break;// En caso de encontrar un campo vacio rompemos el ciclo
+                }else{
+                    valFO.add(Integer.parseInt(txtVectorFO.get(i).getText()));
+                }
+            }
+
+            for(int x = 0; x < txtListRes.size(); x++)
+                valRES.add(new ArrayList<Integer>());
+
+            //Guardar los valores de la variables de las restricciones
+            for (int i = 0; i < txtListRes.size(); i++) {
+                for (int j = 0; j < txtListRes.get(i).size(); j++) {
+                    if(txtListRes.get(i).get(j).getText().equals("")){ //Validar que los campos esten llenos
+                        JOptionPane.showMessageDialog(this, "Llena todos los campos de las restricciones", "Error!", JOptionPane.ERROR_MESSAGE);
+                        camposLlenos = false;
+                        break;
+                    }else{
+                        valRES.get(i).add(Integer.parseInt(txtListRes.get(i).get(j).getText()));
+                    }
+                }
+                if(!camposLlenos)
+                    break;
+            }
+
+            //Guardamos las desigualdades en un lista
+            for (int i = 0; i < jcbdesigualdad.size(); i++) {
+                desigualdades.add(des.get( (String) jcbdesigualdad.get(i).getSelectedItem() ) );
+            }
+            boolean maxi = true;
+            if (jrMin.isSelected() )
+                maxi = false;
+            else
+                maxi = true;
+
+            if(camposLlenos){ //Si todos los campos estan llenos podemos empezar con el metodo
+                Simplex metodoSimplex = new Simplex(valFO, valRES, desigualdades, maxi);
+                VentanaResultados res = new VentanaResultados(metodoSimplex.obeterVectorSol(), metodoSimplex.obeterTablasIter());
+                res.setVisible(true);
+            }
         }catch(Exception excep){
             JComboBox aux = (JComboBox)e.getSource();
             if (aux == jcbMAXRES) {
-                 crearRestricciones((Integer)jcbMAXRES.getSelectedItem(), (Integer)jcbMAXVAR.getSelectedItem());
+                 crearUIresticciones((Integer)jcbMAXRES.getSelectedItem(), (Integer)jcbMAXVAR.getSelectedItem());
             }else if (aux == jcbMAXVAR) {
-                 crearRestricciones((Integer)jcbMAXRES.getSelectedItem(), (Integer)jcbMAXVAR.getSelectedItem());
-                 crearFuncionObjetivo((Integer)jcbMAXVAR.getSelectedItem());crearFuncionObjetivo((Integer)jcbMAXVAR.getSelectedItem());
+                 crearUIresticciones((Integer)jcbMAXRES.getSelectedItem(), (Integer)jcbMAXVAR.getSelectedItem());
+                 creaUIfuncionObjetivo((Integer)jcbMAXVAR.getSelectedItem());creaUIfuncionObjetivo((Integer)jcbMAXVAR.getSelectedItem());
             }
         }   
     }

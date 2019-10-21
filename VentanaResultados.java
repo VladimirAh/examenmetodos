@@ -4,12 +4,15 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class VentanaResultados extends JFrame implements ActionListener {
     public JPanel jpSouth;
     public JButton btnCerrar;
 
-    public VentanaResultados() {
+    public VentanaResultados(ArrayList<Integer> vectorSol, List<List<Integer>> tablasIter) {
         super();
         configurarVentana();
         inicializarComponentes();
@@ -23,7 +26,6 @@ public class VentanaResultados extends JFrame implements ActionListener {
         //this.setResizable(false); //Evitar que se pueda cambiar el tamaño de la ventana
         //|this.setDefaultCloseOperation(this.EXIT_ON_CLOSE); //Permite que se cierre la ventana
         //El JFrame (VentanaResultados) usara el layout BorderLayout
-
     }
 
     //Inicializar los componentes que estaran dentro de VentanaResultados
