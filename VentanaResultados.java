@@ -12,7 +12,7 @@ public class VentanaResultados extends JFrame implements ActionListener {
     public JPanel jpSouth;
     public JButton btnCerrar;
 
-    public VentanaResultados(ArrayList<Integer> vectorSol, List<List<Integer>> tablasIter) {
+    public VentanaResultados(ArrayList<Double> vectorSol, List<List<Double>> tablasIter) {
         super();
         configurarVentana();
         inicializarComponentes();

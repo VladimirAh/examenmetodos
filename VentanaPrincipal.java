@@ -40,8 +40,8 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
     private List<List<JTextField>> txtListRes = new ArrayList<List<JTextField>>(); 
     private ArrayList<JComboBox> jcbdesigualdad; private HashMap<String, Integer> des; 
 
-    private ArrayList<Integer> valFO; //Vector con los valores de las variables de la funcion objetivo
-    private List<List<Integer>> valRES = new ArrayList<List<Integer>>(); 
+    private ArrayList<Double> valFO; //Vector con los valores de las variables de la funcion objetivo
+    private List<List<Double>> valRES;
     private ArrayList<Integer> desigualdades;
 
     private ButtonGroup bg; //Grupo de radiobutton
@@ -161,21 +161,19 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
         jpSouth.add(jpFuncionObj, BorderLayout.CENTER);
         jpSouth.add(btnResolver, BorderLayout.EAST);
 
-        btnResolver.addActionListener(this); //Añadimos el boton de Resolver a la escucha
+        //Añadimos elementos a la escucha
+        btnResolver.addActionListener(this); 
         jcbMAXVAR.addActionListener(this); 
         jcbMAXRES.addActionListener(this); 
 
-        //Valor seleccionado actual del numero de variables
-        int numActualVar = (Integer)jcbMAXVAR.getSelectedItem();
-        //Valor seleccionado actual del numero de restricciones
-        int numActualRes = (Integer)jcbMAXRES.getSelectedItem();
+        
+        int numActualVar = (Integer)jcbMAXVAR.getSelectedItem();//Valor seleccionado actual del numero de variables
+        int numActualRes = (Integer)jcbMAXRES.getSelectedItem();//Valor seleccionado actual del numero de restricciones
 
         txtVectorFO = new ArrayList<JTextField>();
-
         jcbdesigualdad = new ArrayList<JComboBox>();
-
-        des = new HashMap<String, Integer>();
-
+        
+        des = new HashMap<String, Integer>(); //HashMap donde se guardaran las desigualdades
         des.put("<=", new Integer(0));
         des.put(">=", new Integer(1));
         des.put("=",  new Integer(2));
@@ -184,12 +182,13 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
         creaUIfuncionObjetivo(numActualVar);
         crearUIresticciones(numActualRes, numActualVar);
 
-        valFO = new ArrayList<Integer>();
+        valFO = new ArrayList<Double>();
         desigualdades = new ArrayList<Integer>();
+        valRES = new ArrayList<List<Double>>();
     }
 
     public void crearUIresticciones(int numRes, int numVar){
-        txtListRes.clear();
+        txtListRes.clear(); //Eliminar 
         jcbdesigualdad.clear();
         for(int i = 0; i < numRes; i++)
             txtListRes.add(new ArrayList<JTextField>());
@@ -254,11 +253,13 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-       valFO.clear();
-       valRES.clear();
-       desigualdades.clear();
         try{
             JButton aux = (JButton)e.getSource();
+
+            valFO.clear();
+            valRES.clear();
+            desigualdades.clear();
+
              boolean camposLlenos = true;
             //Guardar los valores de la variables de la FO en una lista
             for (int i = 0; i < txtVectorFO.size(); i++)  {
@@ -267,12 +268,12 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
                     camposLlenos = false;
                     break;// En caso de encontrar un campo vacio rompemos el ciclo
                 }else{
-                    valFO.add(Integer.parseInt(txtVectorFO.get(i).getText()));
+                    valFO.add(Double.parseDouble(txtVectorFO.get(i).getText()));
                 }
             }
 
             for(int x = 0; x < txtListRes.size(); x++)
-                valRES.add(new ArrayList<Integer>());
+                valRES.add(new ArrayList<Double>());
 
             //Guardar los valores de la variables de las restricciones
             for (int i = 0; i < txtListRes.size(); i++) {
@@ -282,7 +283,7 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
                         camposLlenos = false;
                         break;
                     }else{
-                        valRES.get(i).add(Integer.parseInt(txtListRes.get(i).get(j).getText()));
+                        valRES.get(i).add(Double.parseDouble(txtListRes.get(i).get(j).getText()));
                     }
                 }
                 if(!camposLlenos)
@@ -291,7 +292,7 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
 
             //Guardamos las desigualdades en un lista
             for (int i = 0; i < jcbdesigualdad.size(); i++) {
-                desigualdades.add(des.get( (String) jcbdesigualdad.get(i).getSelectedItem() ) );
+                desigualdades.add( des.get( (String) jcbdesigualdad.get(i).getSelectedItem() ) );
             }
             boolean maxi = true;
             if (jrMin.isSelected() )
@@ -302,10 +303,11 @@ public class VentanaPrincipal extends JFrame implements ActionListener {
             if(camposLlenos){ //Si todos los campos estan llenos podemos empezar con el metodo
                 Simplex metodoSimplex = new Simplex(valFO, valRES, desigualdades, maxi);
                 metodoSimplex.resolverSimplex();
-                VentanaResultados res = new VentanaResultados(metodoSimplex.obeterVectorSol(), metodoSimplex.obeterTablasIter());
+                VentanaResultados res = new VentanaResultados(metodoSimplex.obeterVectorSol(), metodoSimplex.obeterTablasIterVar());
                 res.setVisible(true);
             }
         }catch(Exception excep){
+            System.out.println(""+excep.getMessage());
             JComboBox aux = (JComboBox)e.getSource();
             if (aux == jcbMAXRES) {
                  crearUIresticciones((Integer)jcbMAXRES.getSelectedItem(), (Integer)jcbMAXVAR.getSelectedItem());
